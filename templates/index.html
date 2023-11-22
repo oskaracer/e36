@@ -108,7 +108,7 @@
         .droppable-area {
             border: 2px dashed #ccc; /* Add a border to the droppable area */
             height: 350px;
-            width: 200px;/* Set a fixed height for the droppable area */
+            width: 220px;/* Set a fixed height for the droppable area */
         }
         .droppable-area-trash {
             border: 2px dashed #ccc; /* Add a border to the droppable area */
@@ -199,7 +199,7 @@
             location.reload(true);
         }
 
-    async function sendPostRequest(reqTxt, data) {
+        async function sendPostRequest(reqTxt, data) {
 
             var xhr = new XMLHttpRequest();
             xhr.open("POST", reqTxt, true);
@@ -226,72 +226,79 @@
 
     }
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
          // Function to be called when the button is dropped onto the droppable area
-    function handleDrop(event) {
-        event.preventDefault();
+        function handleDrop(event) {
+            event.preventDefault();
 
-        if ( event.target.className == "droppable-area" ) {
-            // Get the data (preset name) from the dragged button
-            var data = event.dataTransfer.getData("text");
-            console.log("Drop to: " + event.target.className)
+            if ( event.target.className == "droppable-area" ) {
+                // Get the data (preset name) from the dragged button
+                var data = event.dataTransfer.getData("text");
+                console.log("Drop to: " + event.target.className)
 
-            var success = sendPostRequest("/markSelected", "name=" + data)
+                var success = sendPostRequest("/markSelected", "name=" + data)
 
-            if (success) {
+                if (success) {
 
-                // Create a clone of the dragged button
-                var draggedButton = document.getElementById(data);
-                var cloneButton = draggedButton.cloneNode(true);
-                cloneButton.id = "clone_" + data; // Set a unique id for the clone button
-                cloneButton.classList.add("clone-button"); // Add a class for styling
+                    // Create a clone of the dragged button
+                    var draggedButton = document.getElementById(data);
+                    var cloneButton = draggedButton.cloneNode(true);
+                    cloneButton.id = "clone_" + data; // Set a unique id for the clone button
+                    cloneButton.classList.add("clone-button"); // Add a class for styling
 
-                console.log("Created clone: " + cloneButton.id)
-                // Add the clone button to the droppable area
-                event.target.appendChild(cloneButton);
+                    console.log("Created clone: " + cloneButton.id)
+                    // Add the clone button to the droppable area
+                    event.target.appendChild(cloneButton);
 
-                // Reset the cursor style of the dragged button
-                draggedButton.style.cursor = "grab";
+                    // Reset the cursor style of the dragged button
+                    draggedButton.style.cursor = "grab";
 
-            } else {
-                window.alert("Success: " + success)
+                } else {
+                    window.alert("Success: " + success)
+                }
             }
         }
-    }
 
-    function handleDropTrash(event) {
-        event.preventDefault();
+        function handleDropTrash(event) {
+            event.preventDefault();
 
-        // Get the data (preset name) from the dragged button
-        var data = event.dataTransfer.getData("text");
-        var draggedBtn = document.getElementById(data);
+            // Get the data (preset name) from the dragged button
+            var data = event.dataTransfer.getData("text");
+            var draggedBtn = document.getElementById(data);
 
-        if ( data.startsWith("clone_")) {
+            if ( data.startsWith("clone_")) {
 
-            var success = sendPostRequest("/unmarkSelected", "name=" + data.slice(6))
-            if (!success) { return false }
+                var success = sendPostRequest("/unmarkSelected", "name=" + data.slice(6))
+                if (!success) { return false }
 
-        } else {
-            // If it is original button, we need to delete preset
+            } else {
+                // If it is original button, we need to delete preset
 
-            var success = sendPostRequest("/deletePreset", "name=" + data)
-            if (!success) { return false }
+                var success = sendPostRequest("/deletePreset", "name=" + data)
+                if (!success) { return false }
+            }
+
+            draggedBtn.remove()
+            console.log("Removed Button: " + draggedBtn.id)
         }
 
-        draggedBtn.remove()
-        console.log("Removed Button: " + draggedBtn.id)
-    }
+        // Function to be called when the button starts being dragged
+        function handleDragStart(event) {
+            // Set the data (preset name) to be transferred with the drag
+            event.dataTransfer.setData("text", event.target.id);
+            console.log("Dragging: " + event.target)
+            // Change the cursor style of the dragged button
+            event.target.style.cursor = "grabbing";
+        }
 
-    // Function to be called when the button starts being dragged
-    function handleDragStart(event) {
-        // Set the data (preset name) to be transferred with the drag
-        event.dataTransfer.setData("text", event.target.id);
-        console.log("Dragging: " + event.target)
-        // Change the cursor style of the dragged button
-        event.target.style.cursor = "grabbing";
-    }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create a button element
+            //var addButton = Server.load_selected_presets()
+            window.alert("Loaded")
+            {#document.body.appendChild(addButton);#}
+        });
 
     </script>
 </head>
@@ -352,7 +359,22 @@
         </div>
 
         <h2>Selected presets</h2>
-        <div class="droppable-area" ondrop="handleDrop(event)" ondragover="event.preventDefault()"> </div>
+        <div class="droppable-area" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+
+{#            <ul class="droppable-area">#}
+{##}
+{#                {% for preset in Server.load_selected_presets() %}#}
+{#                    <li>#}
+{#                         <button id={{ preset }} draggable="true" ondragstart="handleDragStart(event)" onclick="loadPreset('{{ preset }}')">#}
+{#                            <div>#}
+{#                                <label>{{ preset }}</label>#}
+{#                                <img src="{{ get_image_url_for_preset(preset) }}" alt="{{ preset }}" draggable="false">#}
+{#                            </div>#}
+{#                        </button>#}
+{#                    </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+        </div>
 
     </div>
 

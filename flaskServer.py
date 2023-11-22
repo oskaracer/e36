@@ -112,6 +112,12 @@ class Server:
             return need_path
         return f"/static/car_icon_default.jpg"
 
+    @staticmethod
+    def load_selected_presets():
+
+        presets = Server.backend.presets.load_selected_presets()
+        presets = ["clone_" + x.strip() for x in presets]
+        return presets
 
 if __name__ == '__main__':
    Server.app.run(debug=True)
