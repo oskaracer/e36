@@ -72,6 +72,22 @@ class Server:
         return jsonify(success=False, message=f"Error toggling Exhaust flap button!")
 
     @staticmethod
+    @app.route('/markSelected', methods=['POST'])
+    def markSelectedPreset():
+        preset_name = request.form['name']
+        if Server.backend.presets.markAsSelected(preset_name):
+            return jsonify(success=True)
+        return jsonify(success=False, message=f"Error Marking preset as selected! Already marked?")
+
+    @staticmethod
+    @app.route('/unmarkSelected', methods=['POST'])
+    def unmarkSelectedPreset():
+        preset_name = request.form['name']
+        if Server.backend.presets.unmarkAsSelected(preset_name):
+            return jsonify(success=True)
+        return jsonify(success=False, message=f"Error UnMarking preset as selected! Already unmarked?")
+
+    @staticmethod
     def get_image_url_for_preset(preset_name):
 
         if not os.path.exists(f"{Server.PRESET_IMG_LOCATION}/{preset_name}.jpg"):

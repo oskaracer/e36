@@ -68,10 +68,13 @@ class ExhaustFlap(object):
 class LEDPresetStorage(object):
     BL_PRESET_NAMES = ["OFF", "shown_list"]
 
+    PRESETS_LOCATION = "stored_data/presets.json"
+    SELECTED_PRESETS_LOCATION = "stored_data/selected_presets"
+
     def __init__(self, parent):
 
-        self.path = "presets.json"
         self.storage = {}
+        self.selected_presets = []
         self.load_last_presets()
 
         self.parent = parent
@@ -117,7 +120,7 @@ class LEDPresetStorage(object):
         if preset_name in self.storage:
             self.storage.pop(preset_name)
             print(f"Preset {preset_name} deleted successfully!")
-            with open(self.path, 'w') as file:
+            with open(self.PRESETS_LOCATION, 'w') as file:
                 json.dump(self.storage, file, indent=2)
 
             return True
@@ -130,7 +133,7 @@ class LEDPresetStorage(object):
     def load_last_presets(self):
 
         try:
-            with open(self.path, 'r') as file:
+            with open(self.PRESETS_LOCATION, 'r') as file:
                 self.storage = json.load(file)
             return self.storage
         except FileNotFoundError:
@@ -138,7 +141,7 @@ class LEDPresetStorage(object):
 
     def save_to_file(self):
 
-        with open(self.path, 'w') as file:
+        with open(self.PRESETS_LOCATION, 'w') as file:
             json.dump(self.storage, file, indent=2)
 
     def create_preset_img(self, name):
@@ -221,20 +224,60 @@ class LEDPresetStorage(object):
 
         return cv2.imwrite(img_location, img)
 
-    # Mark preset to be shown local on monitor
-    def mark_used_local(self, name):
+    def load_selected_presets(self):
+        try:
+            with open(self.SELECTED_PRESETS_LOCATION, 'r') as file:
+                self.selected_presets = file.readlines()
+                print(self.selected_presets)
+            return self.selected_presets
+        except FileNotFoundError:
+            return []
 
+    # Mark preset to be shown local on monitor
+    def markAsSelected(self, name):
+
+        self.load_selected_presets()
         self.load_last_presets()
 
-        for preset_name in self.storage.keys():
+        for preset_name in self.selected_presets:
 
-            if preset_name == name:
-                print(f"Put here show flag2 for {name}")
-                preset_data = self.storage[name]
-                for data in preset_data:
-                    if data['name'] == "data":
-                        print("Put here show flag2")
+            if preset_name.strip() == name:
+                print(f"Preset already marked: {name}")
+                return False
 
+        # If not marked yet
+        if len(self.selected_presets) > 5:
+            print(f"Removing oldest selected preset: {self.selected_presets[0]}")
+            self.selected_presets.pop(0)
+
+        self.selected_presets.append(name + "\n")
+        with open(self.SELECTED_PRESETS_LOCATION, 'w') as f:
+            f.writelines(self.selected_presets)
+
+        print(f"new preset marked: {name}")
+        return True
+
+    def unmarkAsSelected(self, name):
+
+        self.load_selected_presets()
+        self.load_last_presets()
+
+        to_remove = False
+        for preset_name in self.selected_presets:
+
+            if preset_name.strip() == name:
+                to_remove = True
+
+        if not to_remove:
+            print(f"Preset {name} already doesn't exist in selected preset")
+            return True
+
+        self.selected_presets.remove(name + '\n')
+        with open(self.SELECTED_PRESETS_LOCATION, 'w') as f:
+            f.writelines(self.selected_presets)
+
+        print(f"Selected preset removed: {name}")
+        return True
 
 class App(object):
 

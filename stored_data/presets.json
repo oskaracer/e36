@@ -1,36 +1,4 @@
 {
-  "aa": [
-    {
-      "name": "left_outer",
-      "color": "#808080",
-      "brightness": 172
-    },
-    {
-      "name": "left_inner",
-      "color": "#808080",
-      "brightness": 77
-    },
-    {
-      "name": "right_inner",
-      "color": "#808080",
-      "brightness": 128
-    },
-    {
-      "name": "right_outer",
-      "color": "#808080",
-      "brightness": 128
-    },
-    {
-      "name": "lower_left",
-      "color": "#808080",
-      "brightness": 128
-    },
-    {
-      "name": "lower_right",
-      "color": "#808080",
-      "brightness": 128
-    }
-  ],
   "bb": [
     {
       "name": "left_outer",
@@ -157,38 +125,6 @@
       "name": "lower_right",
       "color": "#4F8043",
       "brightness": 56
-    }
-  ],
-  "MAX_BLUE": [
-    {
-      "name": "left_outer",
-      "color": "#0D6D80",
-      "brightness": 255
-    },
-    {
-      "name": "left_inner",
-      "color": "#0D6D80",
-      "brightness": 255
-    },
-    {
-      "name": "right_inner",
-      "color": "#0D6D80",
-      "brightness": 255
-    },
-    {
-      "name": "right_outer",
-      "color": "#0D6D80",
-      "brightness": 255
-    },
-    {
-      "name": "lower_left",
-      "color": "#0D6D80",
-      "brightness": 255
-    },
-    {
-      "name": "lower_right",
-      "color": "#0D6D80",
-      "brightness": 255
     }
   ],
   "devil": [
