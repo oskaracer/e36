@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 from urllib.parse import parse_qs
-
+import os
 
 class Server:
+
+    PRESET_IMG_LOCATION = "static/preset_images"
 
     app = Flask(__name__)
 
@@ -14,7 +16,8 @@ class Server:
     def index():
         return render_template('index.html', leds=Server.backend.leds,
                                presets=Server.backend.presets.load_last_presets(),
-                               curr_preset=Server.backend.get_curr_preset())
+                               curr_preset=Server.backend.get_curr_preset(),
+                               get_image_url_for_preset=Server.get_image_url_for_preset)
 
     @staticmethod
     @app.route('/update', methods=['POST'])
@@ -66,6 +69,20 @@ class Server:
         if Server.ui.flapScreen.toggle_button("Exhaust Flap"):
             return jsonify(success=True)
         return jsonify(success=False, message=f"Error toggling Exhaust flap button!")
+
+    @staticmethod
+    def get_image_url_for_preset(preset_name):
+        ok = False
+
+        if not os.path.exists(f"{Server.PRESET_IMG_LOCATION}/{preset_name}.jpg"):
+            ok = Server.backend.presets.create_preset_img(preset_name)
+        else:
+            ok = True
+
+        if ok:
+            return f"/{Server.PRESET_IMG_LOCATION}/{preset_name}.jpg"
+        return f"/{Server.PRESET_IMG_LOCATION}/no_img.jpg"
+
 
 if __name__ == '__main__':
    Server.app.run(debug=True)

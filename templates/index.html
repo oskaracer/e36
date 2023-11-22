@@ -200,7 +200,7 @@
             {% for preset in presets %}
                 <li>
                     <button onclick="loadPreset('{{ preset }}')">
-                        <!-- Add an image here if needed -->
+                        <img src="{{ get_image_url_for_preset(preset) }}" alt="{{ preset }}">
                         <span>{{ preset }}</span>
                     </button>
                 </li>

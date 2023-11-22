@@ -1,4 +1,12 @@
 import json
+#import cv2
+import numpy as np
+import os
+
+def hex_to_rgb(hex_color):
+    # Convert hex color to RGB
+    hex_color = hex_color.lstrip('#')
+    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 
 class LEDObject:
@@ -32,6 +40,8 @@ class ExhaustFlap(object):
 
 class LEDPresetStorage(object):
 
+    BL_PRESET_NAMES = ["OFF", "priorities"]
+
     def __init__(self, parent):
 
         self.path = "presets.json"
@@ -40,7 +50,12 @@ class LEDPresetStorage(object):
 
         self.parent = parent
 
+
+
     def save_preset(self, name, leds):
+
+        if name in self.BL_PRESET_NAMES:
+            return False
 
         print(f"Saving preset: {name}")
         self.load_last_presets()
@@ -83,6 +98,10 @@ class LEDPresetStorage(object):
                 json.dump(self.storage, file, indent=2)
 
             return True
+
+        if preset_name + '.jpg' in os.listdir(self.parent.server.PRESET_IMG_LOCATION):
+            os.remove(os.path.join(self.parent.server.PRESET_IMG_LOCATION, preset_name + '.jpg'))
+
         return False
 
     def load_last_presets(self):
@@ -100,6 +119,40 @@ class LEDPresetStorage(object):
             json.dump(self.storage, file, indent=2)
 
 
+    def create_preset_img(self, name):
+
+        colors = None
+
+        if name in self.storage.keys():
+            try:
+                colors = [x['color'] for x in self.storage[name]]
+            except KeyError as e:
+                print(str(e))
+                return False
+
+        if colors is None: return False
+        print(colors)
+
+        image_size = (30, 100, 3)
+
+        # Create a blank image
+        image = np.ones(image_size, dtype=np.uint8) * 255  # White background
+
+        # Calculate the width of each color block
+        block_width = image_size[1] // len(colors)
+
+        # Draw each color block on the image
+        for i, color in enumerate(colors):
+            start_col = i * block_width
+            end_col = (i + 1) * block_width
+            image[:, start_col:end_col, :] = hex_to_rgb(color)
+
+        # Save the image with the preset name
+        image_filename = f"static/preset_images/{name}.jpg"
+        #cv2.imwrite(image_filename, image)
+        return False
+        return True
+
 class App(object):
 
     def __init__(self):
@@ -108,12 +161,12 @@ class App(object):
         self.ui = None
 
         self.leds = [
-            LEDObject('left_outer', '#808080', 128),
-            LEDObject('left_inner', '#808080', 128),
-            LEDObject('right_inner', '#808080', 128),
-            LEDObject('right_outer', '#808080', 128),
-            LEDObject('lower_left', '#808080', 128),
-            LEDObject('lower_right', '#808080', 128)
+            LEDObject('left_outer', '#808080', 0),
+            LEDObject('left_inner', '#808080', 0),
+            LEDObject('right_inner', '#808080', 0),
+            LEDObject('right_outer', '#808080', 0),
+            LEDObject('lower_left', '#808080', 0),
+            LEDObject('lower_right', '#808080', 0)
         ]
 
         self.exhaustFlap = ExhaustFlap(False)
