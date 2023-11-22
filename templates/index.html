@@ -6,17 +6,17 @@
     <script src="{{ url_for('static', filename='jscolor.js') }}"></script>
     <style>
         body {
-                    font-family: 'Arial', sans-serif;
-                    display: flex;
-                    flex-direction: row; /* Updated to display the presets on the right */
-                    justify-content: space-between; /* Updated to create space between sliders and presets */
-                    max-width: 800px; /* Updated to accommodate both sliders and presets */
-                    margin: 0 auto;
-                    padding: 20px;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         #sliders-container {
-            flex: 1; /* Updated to allow the sliders to take the available space */
+            flex: 1;
         }
 
         h1 {
@@ -52,7 +52,7 @@
 
         .presets {
             max-width: 200px;
-            margin: 0 20px; /* Updated to create space between presets and sliders */
+            margin: 0 20px;
         }
 
         .presets-list {
@@ -65,9 +65,26 @@
             margin-bottom: 10px;
         }
 
-        .presets-list a {
-            text-decoration: none;
-            color: #007bff;
+        .presets-list button {
+            text-align: left;
+            padding: 5px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .presets-list button img {
+            margin-right: 5px;
+            max-width: 20px; /* Set the maximum width for the image */
+        }
+
+        .presets-list button:focus {
+            outline: none; /* Remove the default focus outline */
+        }
+
+        .presets-list button:active {
+            background-color: #ddd; /* Add a background color when the button is pressed */
         }
     </style>
     <script src="jscolor.js"></script>
@@ -180,9 +197,14 @@
         <label>{{ curr_preset }}</label>
         <h2>Available Presets</h2>
         <ul class="presets-list">
-        {% for preset in presets %}
-            <li><a href='javascript:loadPreset("{{ preset }}")'>{{ preset }}</a></li>
-        {% endfor %}
+            {% for preset in presets %}
+                <li>
+                    <button onclick="loadPreset('{{ preset }}')">
+                        <!-- Add an image here if needed -->
+                        <span>{{ preset }}</span>
+                    </button>
+                </li>
+            {% endfor %}
         </ul>
     </div>
     <div id="controls-container">
