@@ -211,7 +211,6 @@
         // Reset the cursor style of the dragged button
         draggedButton.style.cursor = "grab";
     }
-
     // Function to be called when the button starts being dragged
     function handleDragStart(event) {
         // Set the data (preset name) to be transferred with the drag
@@ -220,7 +219,17 @@
         // Change the cursor style of the dragged button
         event.target.style.cursor = "grabbing";
     }
-
+    function handleDragLeaveDroppable(event) {
+        event.target.classList.remove("clonable");
+        var clonedButton = document.getElementById("cloneButton");
+        if (clonedButton) {
+            clonedButton.remove();
+        }
+    }
+    function handleDragLeave(event) {
+        event.target.classList.remove("clonable");
+        handleDragLeaveDroppable(event);
+    }
 
     </script>
 </head>
@@ -278,8 +287,10 @@
     <div id="controls-container">
         <h2>Controls</h2>
         <button id="exhaustFlapButton" onclick="toggleExhaustFlap()">Toggle Exhaust Flap</button>
+        <div class="droppable-area" ondrop="handleDrop(event)" ondragover="event.preventDefault()" ondragleave="handleDragLeaveDroppable(event)">
+        </div>
     </div>
-    <div class="droppable-area" ondrop="handleDrop(event)" ondragover="event.preventDefault()"></div>
+
 
 
 </body>
