@@ -72,6 +72,7 @@ class MainWindow(QMainWindow):
             self.current_screen_index -= 1
             self.central_widget.setCurrentIndex(self.current_screen_index)
 
+
 class FlapScreen(object):
 
     def __init__(self, mainwindow):
@@ -92,7 +93,6 @@ class FlapScreen(object):
 
         if state and btn._pressed:
             btn.toggle(True)
-
 
     def btn_pressed_cb(self, btn):
         self.parent.backend.exhaustFlap.toggleExhaustFlap()
@@ -121,8 +121,6 @@ class LedScreen(object):
         self.screen = QLabel('Screen 2', alignment=Qt.AlignCenter)
         self.screen.setPixmap(QPixmap('img/screen_led_modes.jpg'))
 
-        self.curr_preser_btns = []  # Max 6
-
         self.vLayout = QVBoxLayout(self.screen)  # 3 Rows - text, btn, btn
         self.vLayout.setContentsMargins(20, 80, 20, 20)
         self.rowOne = QHBoxLayout(self.screen)
@@ -139,7 +137,7 @@ class LedScreen(object):
         presets = self.parent.backend.presets.load_last_presets()
 
         if len(presets) > self.MAX_PRESETS:
-            presets_names = presets.keys()[:6]
+            presets_names = list(presets.keys())[:6]
         else:
             presets_names = presets.keys()
 

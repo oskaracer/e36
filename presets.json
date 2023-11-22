@@ -222,5 +222,69 @@
       "color": "#806820",
       "brightness": 149
     }
+  ],
+  "BLUEGREEN": [
+    {
+      "name": "left_outer",
+      "color": "#0000FF",
+      "brightness": 255
+    },
+    {
+      "name": "left_inner",
+      "color": "#0000FF",
+      "brightness": 63
+    },
+    {
+      "name": "right_inner",
+      "color": "#0000FF",
+      "brightness": 255
+    },
+    {
+      "name": "right_outer",
+      "color": "#00FF00",
+      "brightness": 255
+    },
+    {
+      "name": "lower_left",
+      "color": "#00FF00",
+      "brightness": 255
+    },
+    {
+      "name": "lower_right",
+      "color": "#00FF00",
+      "brightness": 255
+    }
+  ],
+  "BLUERED": [
+    {
+      "name": "left_outer",
+      "color": "#0000FF",
+      "brightness": 255
+    },
+    {
+      "name": "left_inner",
+      "color": "#0000FF",
+      "brightness": 63
+    },
+    {
+      "name": "right_inner",
+      "color": "#0000FF",
+      "brightness": 255
+    },
+    {
+      "name": "right_outer",
+      "color": "#FF0000",
+      "brightness": 75
+    },
+    {
+      "name": "lower_left",
+      "color": "#FF0000",
+      "brightness": 255
+    },
+    {
+      "name": "lower_right",
+      "color": "#FF0000",
+      "brightness": 255
+    }
   ]
 }

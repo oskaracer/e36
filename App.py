@@ -1,21 +1,48 @@
 import json
-#import cv2
+import cv2
 import numpy as np
 import os
 
-def hex_to_rgb(hex_color):
+
+def hex_to_bgr(hex_color):
     # Convert hex color to RGB
     hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    rgb = tuple(int(hex_color[i:i + 2], 16) for i in (4, 2, 0))
+    print(f"HEX: {hex_color} RGB: {rgb}")
+
+    return rgb
 
 
 class LEDObject:
+
+    NAME2CAR_ICON_DATA = {
+
+        "left_outer": {"pos": (405, 173), "radius": 11},
+        "left_inner": {"pos": (365, 173), "radius": 10},
+        "right_inner": {"pos": (127, 173), "radius": 10},
+        "right_outer": {"pos": (87, 173), "radius": 11},
+
+        "lower_left": {"pos": (49, 253, 99, 273), "radius": 3},
+        "lower_right": {"pos": (392, 253, 442, 273), "radius": 3}
+
+    }
+
+    CIRCLES_NAMES = ["left_outer", "left_inner", "right_inner", "right_outer"]
+    RECTS_NAMES = ["lower_left", "lower_right"]
+
     def __init__(self, name, color, brightness):
         self.name = name
         self.color = color
         self.brightness = brightness
 
         self.pin = 0
+
+        try:
+            self.car_icon_data = self.NAME2CAR_ICON_DATA[self.name]
+
+        except Exception as e:
+            print(str(e))
+            self.car_icon_data = {"pos": (0, 0), "radius": 1}
 
     def to_dict(self):
         return {
@@ -39,8 +66,7 @@ class ExhaustFlap(object):
 
 
 class LEDPresetStorage(object):
-
-    BL_PRESET_NAMES = ["OFF", "priorities"]
+    BL_PRESET_NAMES = ["OFF", "shown_list"]
 
     def __init__(self, parent):
 
@@ -49,8 +75,6 @@ class LEDPresetStorage(object):
         self.load_last_presets()
 
         self.parent = parent
-
-
 
     def save_preset(self, name, leds):
 
@@ -91,7 +115,6 @@ class LEDPresetStorage(object):
 
         self.load_last_presets()
         if preset_name in self.storage:
-
             self.storage.pop(preset_name)
             print(f"Preset {preset_name} deleted successfully!")
             with open(self.path, 'w') as file:
@@ -118,7 +141,6 @@ class LEDPresetStorage(object):
         with open(self.path, 'w') as file:
             json.dump(self.storage, file, indent=2)
 
-
     def create_preset_img(self, name):
 
         colors = None
@@ -133,25 +155,86 @@ class LEDPresetStorage(object):
         if colors is None: return False
         print(colors)
 
-        image_size = (30, 100, 3)
+        image_size = (30, 200, 3)
 
         # Create a blank image
         image = np.ones(image_size, dtype=np.uint8) * 255  # White background
 
         # Calculate the width of each color block
-        block_width = image_size[1] // len(colors)
+        block_width = int(image_size[1] / len(colors))
 
-        # Draw each color block on the image
         for i, color in enumerate(colors):
-            start_col = i * block_width
-            end_col = (i + 1) * block_width
-            image[:, start_col:end_col, :] = hex_to_rgb(color)
+
+            if i > 3:
+
+                cv2.rectangle(image,
+                              pt1=(block_width * i, 0),
+                              pt2=(block_width * i + block_width, image.shape[0]),
+                              color=(hex_to_bgr(color)),
+                              thickness=-1)
+
+                cv2.rectangle(image,
+                              pt1=(block_width * i, 0),
+                              pt2=(block_width * i + block_width, image.shape[0] - 2),
+                              color=(0, 0, 0),
+                              thickness=2)
+            else:
+
+                cv2.circle(image,
+                           center=(int(block_width / 2 + block_width * i), int(image.shape[0] / 2)),
+                           radius=int(image.shape[0] / 2),
+                           color=hex_to_bgr(color),
+                           thickness=-1)
+                cv2.circle(image,
+                           center=(int(block_width / 2 + block_width * i), int(image.shape[0] / 2)),
+                           radius=int(image.shape[0] / 2),
+                           color=(0, 0, 0),
+                           thickness=2)
 
         # Save the image with the preset name
         image_filename = f"static/preset_images/{name}.jpg"
-        #cv2.imwrite(image_filename, image)
-        return False
-        return True
+        return cv2.imwrite(image_filename, image)
+
+    def create_car_icon_preset(self, name):
+
+        img_location = f"static/car_icon_{name}.jpg"
+
+        img = cv2.imread("static/car_icon_default.jpg")
+        if img is None:
+            print("Couldn't load default car icon image!")
+            return False
+
+        for led in self.parent.leds:
+
+            if led.name in LEDObject.CIRCLES_NAMES:
+
+                cv2.circle(img, center=led.car_icon_data['pos'],
+                           radius=led.car_icon_data['radius'],
+                           color=hex_to_bgr(led.color),
+                           thickness=-1)
+            elif led.name in LEDObject.RECTS_NAMES:
+
+                cv2.rectangle(img, pt1=(led.car_icon_data['pos'][0], led.car_icon_data['pos'][1]),
+                              pt2=(led.car_icon_data['pos'][2], led.car_icon_data['pos'][3]),
+                              color=hex_to_bgr(led.color),
+                            thickness=-1)
+
+        return cv2.imwrite(img_location, img)
+
+    # Mark preset to be shown local on monitor
+    def mark_used_local(self, name):
+
+        self.load_last_presets()
+
+        for preset_name in self.storage.keys():
+
+            if preset_name == name:
+                print(f"Put here show flag2 for {name}")
+                preset_data = self.storage[name]
+                for data in preset_data:
+                    if data['name'] == "data":
+                        print("Put here show flag2")
+
 
 class App(object):
 
@@ -172,12 +255,11 @@ class App(object):
         self.exhaustFlap = ExhaustFlap(False)
 
         self.presets = LEDPresetStorage(self)
-        self.curr_preset = None # "default"
+        self.curr_preset = None  # "default"
 
     def set_curr_preset(self, p):
 
         self.curr_preset = p
-
 
         if p is not None:
             return self.presets.load_preset(p, self.leds)

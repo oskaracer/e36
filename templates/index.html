@@ -55,6 +55,19 @@
             margin: 0 20px;
         }
 
+        .presets img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+        .presets label {
+            text-align: center;
+        }
+        .presets-container {
+            max-height: 440px; /* Set the maximum height for the container */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
         .presets-list {
             list-style-type: none;
             padding: 0;
@@ -63,20 +76,22 @@
 
         .presets-list li {
             margin-bottom: 10px;
+            flex-direction: row;
         }
 
         .presets-list button {
-            text-align: left;
+            text-align: center;
             padding: 5px;
             width: 100%;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
+            flex-direction: column;
         }
 
         .presets-list button img {
-            margin-right: 5px;
-            max-width: 20px; /* Set the maximum width for the image */
+            max-width: 100%; /* Set the maximum width for the image */
+            width: 100%;
         }
 
         .presets-list button:focus {
@@ -86,6 +101,19 @@
         .presets-list button:active {
             background-color: #ddd; /* Add a background color when the button is pressed */
         }
+
+
+        .draggable-button {
+            cursor: grab; /* Set the cursor to the grab hand symbol */
+            user-select: none; /* Disable text selection during drag */
+        }
+
+        .droppable-area {
+            border: 2px dashed #ccc; /* Add a border to the droppable area */
+            height: 100px;
+            width: 100px;/* Set a fixed height for the droppable area */
+        }
+
     </style>
     <script src="jscolor.js"></script>
     <script>
@@ -163,6 +191,37 @@
             xhr.send();
             location.reload(true);
         }
+
+         // Function to be called when the button is dropped onto the droppable area
+    function handleDrop(event) {
+        event.preventDefault();
+
+        // Get the data (preset name) from the dragged button
+        var data = event.dataTransfer.getData("text");
+
+        // Create a clone of the dragged button
+        var draggedButton = document.getElementById(data);
+        var cloneButton = draggedButton.cloneNode(true);
+        cloneButton.id = "cloneButton"; // Set a unique id for the clone button
+        cloneButton.classList.add("clone-button"); // Add a class for styling
+
+        // Add the clone button to the droppable area
+        event.target.appendChild(cloneButton);
+
+        // Reset the cursor style of the dragged button
+        draggedButton.style.cursor = "grab";
+    }
+
+    // Function to be called when the button starts being dragged
+    function handleDragStart(event) {
+        // Set the data (preset name) to be transferred with the drag
+        event.dataTransfer.setData("text", event.target.id);
+
+        // Change the cursor style of the dragged button
+        event.target.style.cursor = "grabbing";
+    }
+
+
     </script>
 </head>
 <body>
@@ -194,23 +253,34 @@
 
     <div class="presets">
         <h2>Current preset</h2>
+        <img src="{{ Server.get_curr_preset_car_img(preset) }}" alt="{{ preset }}">
         <label>{{ curr_preset }}</label>
+
         <h2>Available Presets</h2>
-        <ul class="presets-list">
-            {% for preset in presets %}
-                <li>
-                    <button onclick="loadPreset('{{ preset }}')">
-                        <img src="{{ get_image_url_for_preset(preset) }}" alt="{{ preset }}">
-                        <span>{{ preset }}</span>
+        <div class="presets-container">
+            <ul class="presets-list">
+                {% for preset in presets %}
+                    <li>
+                        <button onclick="loadPreset('{{ preset }}')" on>
+                            <div>
+                                <label>{{ preset }}</label>
+                                <img src="{{ get_image_url_for_preset(preset) }}" alt="{{ preset }}">
+                            </div>
+                        </button>
+                    <button id="presetButton" class="draggable-button" draggable="true" ondragstart="handleDragStart(event)">
+                        Drag me!
                     </button>
-                </li>
-            {% endfor %}
-        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     <div id="controls-container">
         <h2>Controls</h2>
         <button id="exhaustFlapButton" onclick="toggleExhaustFlap()">Toggle Exhaust Flap</button>
     </div>
+    <div class="droppable-area" ondrop="handleDrop(event)" ondragover="event.preventDefault()"></div>
+
 
 </body>
 </html>

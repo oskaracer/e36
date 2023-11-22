@@ -17,7 +17,8 @@ class Server:
         return render_template('index.html', leds=Server.backend.leds,
                                presets=Server.backend.presets.load_last_presets(),
                                curr_preset=Server.backend.get_curr_preset(),
-                               get_image_url_for_preset=Server.get_image_url_for_preset)
+                               get_image_url_for_preset=Server.get_image_url_for_preset,
+                               Server=Server)
 
     @staticmethod
     @app.route('/update', methods=['POST'])
@@ -72,7 +73,6 @@ class Server:
 
     @staticmethod
     def get_image_url_for_preset(preset_name):
-        ok = False
 
         if not os.path.exists(f"{Server.PRESET_IMG_LOCATION}/{preset_name}.jpg"):
             ok = Server.backend.presets.create_preset_img(preset_name)
@@ -82,6 +82,19 @@ class Server:
         if ok:
             return f"/{Server.PRESET_IMG_LOCATION}/{preset_name}.jpg"
         return f"/{Server.PRESET_IMG_LOCATION}/no_img.jpg"
+
+    @staticmethod
+    def get_curr_preset_car_img(preset_name):
+
+        need_path = f"/static/car_icon_{preset_name}.jpg"
+        if not os.path.exists(need_path):
+            ok = Server.backend.presets.create_car_icon_preset(preset_name)
+        else:
+            ok = True
+
+        if ok:
+            return need_path
+        return f"/static/car_icon_default.jpg"
 
 
 if __name__ == '__main__':
