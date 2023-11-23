@@ -134,12 +134,20 @@ class LedScreen(object):
 
     def update_screen(self):
 
-        presets = self.parent.backend.presets.load_last_presets()
+        sel_presets = self.parent.backend.presets.load_selected_presets()
+        all_presets = self.parent.backend.presets.load_last_presets()
+        # presets = {} # {all_presets[x] for x in all_presets.keys() if x in sel_presets}
+        # for pr in sel_presets:
+        #     pr = pr.strip()
+        #     if pr in all_presets.keys():
+        #         presets.update({pr: all_presets[pr]})
+        #
+        # if len(presets) > self.MAX_PRESETS:
+        #     presets_names = list(presets.keys())[:6]
+        # else:
+        #     presets_names = presets.keys()
 
-        if len(presets) > self.MAX_PRESETS:
-            presets_names = list(presets.keys())[:6]
-        else:
-            presets_names = presets.keys()
+        presets_names = [x.strip() for x in sel_presets if x.strip() in all_presets.keys()]
 
         print(presets_names)
 

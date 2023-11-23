@@ -19,7 +19,7 @@ class FlaskThread(QThread):
 # Start UI
 app = QApplication(sys.argv)
 ui = MainWindow()
-ui.initUI()
+
 
 backend = App()
 
@@ -34,6 +34,8 @@ backend.server = Server
 
 ui.backend = backend
 ui.server = Server
+
+ui.initUI()
 # Start control backend
 
 ui.ledScreen.update_screen()

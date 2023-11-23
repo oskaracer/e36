@@ -88,6 +88,15 @@ class Server:
         return jsonify(success=False, message=f"Error UnMarking preset as selected! Already unmarked?")
 
     @staticmethod
+    @app.route('/getSelectedPresets', methods=['GET'])
+    def load_selected_presets():
+        print("Called")
+        presets = Server.backend.presets.load_selected_presets()
+        #presets = ["clone_" + x.strip() for x in presets]
+        presets = [x.strip() for x in presets]
+        return jsonify(success=True, message=f"{presets}")
+
+    @staticmethod
     def get_image_url_for_preset(preset_name):
 
         if not os.path.exists(f"{Server.PRESET_IMG_LOCATION}/{preset_name}.jpg"):
@@ -112,12 +121,7 @@ class Server:
             return need_path
         return f"/static/car_icon_default.jpg"
 
-    @staticmethod
-    def load_selected_presets():
 
-        presets = Server.backend.presets.load_selected_presets()
-        presets = ["clone_" + x.strip() for x in presets]
-        return presets
 
 if __name__ == '__main__':
    Server.app.run(debug=True)

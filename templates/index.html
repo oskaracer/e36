@@ -224,11 +224,12 @@
             await sleep(2000)
             return false
 
-    }
+        }
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
+
          // Function to be called when the button is dropped onto the droppable area
         function handleDrop(event) {
             event.preventDefault();
@@ -238,26 +239,35 @@
                 var data = event.dataTransfer.getData("text");
                 console.log("Drop to: " + event.target.className)
 
-                var success = sendPostRequest("/markSelected", "name=" + data)
+                //var success = sendPostRequest("/markSelected", "name=" + data)
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/markSelected", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.send("name=" + data);
+                xhr.onreadystatechange  = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        // Handle the response here
+                        var response = xhr.responseText;
+                        console.log( "/markSelected result: " + response);
+                        var jsonResponse = JSON.parse(xhr.responseText);
+                        if (!jsonResponse.success) {
+                            window.alert("Error: " + jsonResponse.message)
+                        } else {
+                            // Create a clone of the dragged button
+                            var draggedButton = document.getElementById(data);
+                            var cloneButton = draggedButton.cloneNode(true);
+                            cloneButton.id = "clone_" + data; // Set a unique id for the clone button
+                            cloneButton.classList.add("clone-button"); // Add a class for styling
 
-                if (success) {
+                            console.log("Created clone: " + cloneButton.id)
+                            // Add the clone button to the droppable area
+                            event.target.appendChild(cloneButton);
 
-                    // Create a clone of the dragged button
-                    var draggedButton = document.getElementById(data);
-                    var cloneButton = draggedButton.cloneNode(true);
-                    cloneButton.id = "clone_" + data; // Set a unique id for the clone button
-                    cloneButton.classList.add("clone-button"); // Add a class for styling
-
-                    console.log("Created clone: " + cloneButton.id)
-                    // Add the clone button to the droppable area
-                    event.target.appendChild(cloneButton);
-
-                    // Reset the cursor style of the dragged button
-                    draggedButton.style.cursor = "grab";
-
-                } else {
-                    window.alert("Success: " + success)
-                }
+                            // Reset the cursor style of the dragged button
+                            draggedButton.style.cursor = "grab";
+                        }
+                    }
+                };
             }
         }
 
@@ -295,9 +305,36 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Create a button element
-            //var addButton = Server.load_selected_presets()
-            window.alert("Loaded")
-            {#document.body.appendChild(addButton);#}
+            //var presets_obj = document.getElementById("allPresetsList");
+
+            //window.alert("Loaded" + presets_obj)
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/getSelectedPresets", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.send();
+            xhr.onreadystatechange  = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    var jsonResponse = JSON.parse(xhr.responseText);
+                    var array = JSON.parse(jsonResponse.message.replace(/'/g, '"'));
+
+                    var selectedPrArea = document.getElementById("selectedArea");
+                    //console.log("Selected Drop area: " + selectedPrArea);
+
+                    array.forEach(function(element) {
+                        var draggedButton = document.getElementById(element);
+                        console.log("Creating clone from: " + draggedButton);
+                        var cloneButton = draggedButton.cloneNode(true);
+                        cloneButton.id = "clone_" + element; // Set a unique id for the clone button
+                        cloneButton.classList.add("clone-button"); // Add a class for styling
+
+                        console.log("Created clone: " + cloneButton.id);
+                        selectedPrArea.appendChild(cloneButton);
+                    });
+
+                }
+            };
+
         });
 
     </script>
@@ -336,7 +373,7 @@
 
         <h2>Available Presets</h2>
         <div class="presets-container">
-            <ul class="presets-list">
+            <ul id="allPresetsList" class="presets-list">
                 {% for preset in presets %}
                     <li>
                         <button id={{ preset }} draggable="true" ondragstart="handleDragStart(event)" onclick="loadPreset('{{ preset }}')">
@@ -359,21 +396,8 @@
         </div>
 
         <h2>Selected presets</h2>
-        <div class="droppable-area" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+        <div id="selectedArea" class="droppable-area" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
 
-{#            <ul class="droppable-area">#}
-{##}
-{#                {% for preset in Server.load_selected_presets() %}#}
-{#                    <li>#}
-{#                         <button id={{ preset }} draggable="true" ondragstart="handleDragStart(event)" onclick="loadPreset('{{ preset }}')">#}
-{#                            <div>#}
-{#                                <label>{{ preset }}</label>#}
-{#                                <img src="{{ get_image_url_for_preset(preset) }}" alt="{{ preset }}" draggable="false">#}
-{#                            </div>#}
-{#                        </button>#}
-{#                    </li>#}
-{#                {% endfor %}#}
-{#            </ul>#}
         </div>
 
     </div>
