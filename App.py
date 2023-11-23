@@ -2,13 +2,13 @@ import json
 import cv2
 import numpy as np
 import os
-
+from PyQt5.QtCore import pyqtSignal, QObject
+from LedController import LEDController
 
 def hex_to_bgr(hex_color):
     # Convert hex color to RGB
     hex_color = hex_color.lstrip('#')
     rgb = tuple(int(hex_color[i:i + 2], 16) for i in (4, 2, 0))
-    print(f"HEX: {hex_color} RGB: {rgb}")
 
     return rgb
 
@@ -17,10 +17,10 @@ class LEDObject:
 
     NAME2CAR_ICON_DATA = {
 
-        "left_outer": {"pos": (405, 173), "radius": 11},
-        "left_inner": {"pos": (365, 173), "radius": 10},
-        "right_inner": {"pos": (127, 173), "radius": 10},
-        "right_outer": {"pos": (87, 173), "radius": 11},
+        "left_outer": {"pos": (405, 173), "radius": 18},
+        "left_inner": {"pos": (365, 173), "radius": 18},
+        "right_inner": {"pos": (127, 173), "radius": 18},
+        "right_outer": {"pos": (87, 173), "radius": 18},
 
         "lower_left": {"pos": (49, 253, 99, 273), "radius": 3},
         "lower_right": {"pos": (392, 253, 442, 273), "radius": 3}
@@ -30,11 +30,11 @@ class LEDObject:
     CIRCLES_NAMES = ["left_outer", "left_inner", "right_inner", "right_outer"]
     RECTS_NAMES = ["lower_left", "lower_right"]
 
-    def __init__(self, name, color, brightness):
+    def __init__(self, name, color, brightness, animation=None):
         self.name = name
         self.color = color
         self.brightness = brightness
-
+        self.animation = animation
         self.pin = 0
 
         try:
@@ -48,7 +48,8 @@ class LEDObject:
         return {
             'name': self.name,
             'color': self.color,
-            'brightness': self.brightness
+            'brightness': self.brightness,
+            'animation': self.animation
         }
 
     def __str__(self):
@@ -61,7 +62,7 @@ class ExhaustFlap(object):
         self.state = defState
 
     def toggleExhaustFlap(self):
-        print(f"Changing Exhaust flap state from {self.state} to {not self.state}...")
+        print(f"Exhaust flap state from {self.state} to {not self.state}...")
         self.state = not self.state
 
 
@@ -103,6 +104,10 @@ class LEDPresetStorage(object):
                 if i < len(preset_values):
                     led.brightness = preset_values[i]['brightness']
                     led.color = preset_values[i]['color']
+                    try:
+                        led.animation = preset_values[i]['animation']
+                    except KeyError:
+                        led.animation = None
 
             print(f"Preset {preset_name} loaded successfully!")
             return True
@@ -156,7 +161,6 @@ class LEDPresetStorage(object):
                 return False
 
         if colors is None: return False
-        print(colors)
 
         image_size = (30, 200, 3)
 
@@ -228,7 +232,6 @@ class LEDPresetStorage(object):
         try:
             with open(self.SELECTED_PRESETS_LOCATION, 'r') as file:
                 self.selected_presets = file.readlines()
-                print(self.selected_presets)
             return self.selected_presets
         except FileNotFoundError:
             return []
@@ -255,6 +258,7 @@ class LEDPresetStorage(object):
             f.writelines(self.selected_presets)
 
         print(f"new preset marked: {name}")
+        self.parent.updateLedScreen.emit(f"update_ledscreen")
         return True
 
     def unmarkAsSelected(self, name):
@@ -277,12 +281,16 @@ class LEDPresetStorage(object):
             f.writelines(self.selected_presets)
 
         print(f"Selected preset removed: {name}")
+        self.parent.updateLedScreen.emit(f"update_ledscreen")
         return True
 
-class App(object):
+
+class App(QObject):
+    updateLedScreen = pyqtSignal(str)
 
     def __init__(self):
 
+        super().__init__()
         self.server = None
         self.ui = None
 
@@ -298,6 +306,8 @@ class App(object):
         self.exhaustFlap = ExhaustFlap(False)
 
         self.presets = LEDPresetStorage(self)
+        self.ledController = LEDController(self)
+
         self.curr_preset = None  # "default"
 
     def set_curr_preset(self, p):
@@ -305,6 +315,7 @@ class App(object):
         self.curr_preset = p
 
         if p is not None:
+            self.ledController.update_led_state()
             return self.presets.load_preset(p, self.leds)
 
         # If None we leave values as previous preset was set as was for server
@@ -316,6 +327,3 @@ class App(object):
             return "OFF"
         else:
             return self.curr_preset
-
-    def change_led_state(self):
-        print("TODO: Here we need to do HW work")

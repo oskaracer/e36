@@ -36,6 +36,9 @@ ui.backend = backend
 ui.server = Server
 
 ui.initUI()
+
+
+
 # Start control backend
 
 ui.ledScreen.update_screen()

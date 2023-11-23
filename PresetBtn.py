@@ -20,6 +20,9 @@ class PresetButton(QPushButton):
         # Set the initial state
         self.update_style()
 
+    def __str__(self):
+
+        return f"Button {self.text()}"
 
     @property
     def pressed(self):

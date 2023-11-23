@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QStackedWidget, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QStackedWidget, QHBoxLayout, QPushButton
 from PyQt5.QtCore import Qt, QPoint, QRect
 from PyQt5.QtGui import QPixmap
 
@@ -10,12 +10,13 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.initUI()
+        #self.initUI()
 
         self.backend = None
         self.server = None
 
     def initUI(self):
+
         self.central_widget = QStackedWidget(self)
         self.setCentralWidget(self.central_widget)
 
@@ -38,6 +39,16 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 600, 400)
         self.setWindowTitle('Multi-Screen Qt Application')
         self.show()
+
+        self.backend.updateLedScreen.connect(self.parse_app_cmd)
+
+    def parse_app_cmd(self, cmd):
+
+        print(f"UI cmd received from App: {cmd}")
+
+        if cmd == "update_ledscreen":
+            self.ledScreen.update_screen()
+
 
     def eventFilter(self, obj, event):
         if obj == self.central_widget:
@@ -131,7 +142,6 @@ class LedScreen(object):
         self.vLayout.addLayout(self.rowTwo)
         self.vLayout.addLayout(self.rowThr)
 
-
     def update_screen(self):
 
         sel_presets = self.parent.backend.presets.load_selected_presets()
@@ -151,15 +161,29 @@ class LedScreen(object):
 
         print(presets_names)
 
+        for layout in [self.rowOne, self.rowTwo, self.rowThr]:
+            for i in range(layout.count()):
+                item = layout.itemAt(i)
+                widget = item.widget()
+                if widget and isinstance(widget, PresetButton):
+                    button_text = widget.text()
+                    if button_text not in presets_names:
+                        widget.deleteLater()
+                    else:
+                        presets_names.remove(button_text)
+
         for i, pr in enumerate(presets_names):
 
             btn = PresetButton(self.screen, screen=self)
             btn.setText(str(pr))
-            print(pr)
-            if i < 3:
+            print(f"Btn created: {str(btn)}")
+            if self.rowTwo.count() < 3:
                 self.rowTwo.addWidget(btn)
-            else:
+            elif self.rowThr.count() < 3:
                 self.rowThr.addWidget(btn)
+            else:
+                print("Too much led btns ")
+
 
     def off_buttons(self, exc):
 

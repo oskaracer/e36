@@ -31,38 +31,6 @@
       "brightness": 128
     }
   ],
-  "ssssss": [
-    {
-      "name": "left_outer",
-      "color": "#358073",
-      "brightness": 128
-    },
-    {
-      "name": "left_inner",
-      "color": "#808080",
-      "brightness": 128
-    },
-    {
-      "name": "right_inner",
-      "color": "#512380",
-      "brightness": 128
-    },
-    {
-      "name": "right_outer",
-      "color": "#808080",
-      "brightness": 128
-    },
-    {
-      "name": "lower_left",
-      "color": "#307880",
-      "brightness": 0
-    },
-    {
-      "name": "lower_right",
-      "color": "#4F8043",
-      "brightness": 56
-    }
-  ],
   "11111": [
     {
       "name": "left_outer",
@@ -189,6 +157,44 @@
       "name": "lower_right",
       "color": "#FF0000",
       "brightness": 255
+    }
+  ],
+  "purple": [
+    {
+      "name": "left_outer",
+      "color": "#FF34E9",
+      "brightness": 255,
+      "animation": null
+    },
+    {
+      "name": "left_inner",
+      "color": "#FF34E9",
+      "brightness": 255,
+      "animation": null
+    },
+    {
+      "name": "right_inner",
+      "color": "#FF34E9",
+      "brightness": 255,
+      "animation": null
+    },
+    {
+      "name": "right_outer",
+      "color": "#FF34E9",
+      "brightness": 255,
+      "animation": null
+    },
+    {
+      "name": "lower_left",
+      "color": "#FF34E9",
+      "brightness": 151,
+      "animation": null
+    },
+    {
+      "name": "lower_right",
+      "color": "#FF34E9",
+      "brightness": 149,
+      "animation": null
     }
   ]
 }
