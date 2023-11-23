@@ -188,13 +188,51 @@
       "name": "lower_left",
       "color": "#FF34E9",
       "brightness": 151,
-      "animation": null
+      "animation": "random"
     },
     {
       "name": "lower_right",
       "color": "#FF34E9",
       "brightness": 149,
+      "animation": "random"
+    }
+  ],
+  "sss": [
+    {
+      "name": "left_outer",
+      "color": "#FF34E9",
+      "brightness": 255,
       "animation": null
+    },
+    {
+      "name": "left_inner",
+      "color": "#FF34E9",
+      "brightness": 255,
+      "animation": null
+    },
+    {
+      "name": "right_inner",
+      "color": "#FF34E9",
+      "brightness": 255,
+      "animation": null
+    },
+    {
+      "name": "right_outer",
+      "color": "#FF34E9",
+      "brightness": 255,
+      "animation": null
+    },
+    {
+      "name": "lower_left",
+      "color": "#FF34E9",
+      "brightness": 151,
+      "animation": "random"
+    },
+    {
+      "name": "lower_right",
+      "color": "#FF34E9",
+      "brightness": 149,
+      "animation": "static"
     }
   ]
 }

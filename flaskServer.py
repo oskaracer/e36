@@ -14,10 +14,12 @@ class Server:
     @staticmethod
     @app.route('/')
     def index():
+        # TODO: Cleanup
         return render_template('index.html', leds=Server.backend.leds,
                                presets=Server.backend.presets.load_last_presets(),
                                curr_preset=Server.backend.get_curr_preset(),
                                get_image_url_for_preset=Server.get_image_url_for_preset,
+                               animations=['static', 'random', 'sth_else'],
                                Server=Server)
 
     @staticmethod
@@ -27,8 +29,8 @@ class Server:
         value = int(request.form['value'])
         if 0 <= index < len(Server.backend.leds):
             Server.backend.leds[index].brightness = value
-            return "Slider updated"
-        return "Invalid index"
+            return f"Brightness updated for {Server.backend.leds[index].name}"
+        return f"Invalid index: {index}"
 
     @staticmethod
     @app.route('/updateColor', methods=['POST'])
@@ -37,8 +39,19 @@ class Server:
         color_value = request.form['value']
         if 0 <= index < len(Server.backend.leds):
             Server.backend.leds[index].color = color_value
-            return "Color updated"
-        return "Invalid index"
+            return f"Color updated for {Server.backend.leds[index].name}"
+        return f"Invalid index: {index}"
+
+    @staticmethod
+    @app.route('/updateAnimation', methods=['POST'])
+    def update_animation():
+        index = int(request.form['index'])
+        animation_name = request.form['value']
+        if 0 <= index < len(Server.backend.leds):
+            Server.backend.leds[index].animation = animation_name
+            return f"Animation updated for {Server.backend.leds[index].name} to {animation_name}"
+        return f"Invalid index: {index}"
+
 
     @staticmethod
     @app.route('/savePreset', methods=['POST'])

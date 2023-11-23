@@ -303,6 +303,15 @@
             event.target.style.cursor = "grabbing";
         }
 
+        function updateAnimationValue(ledIndex, animation_value) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/updateAnimation", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.send("index=" + ledIndex + "&value=" + animation_value);
+
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Create a button element
             //var presets_obj = document.getElementById("allPresetsList");
@@ -352,6 +361,14 @@
                            value="{{ led.brightness }}" oninput="updateSliderValue({{ loop.index0 }}, this.value)">
                     <input class="jscolor" id="color_{{ led.name }}" name="color_{{ led.name }}"
                            value="{{ led.color }}" onchange="updateColorValue({{ loop.index0 }}, this.jscolor.toHEXString())">
+
+                        <!-- TODO: add onchange="updateAnimationName, make default as None?"-->
+                    <select id="{{ led.name }}_animation" name="{{ led.name }}_animation" onchange="updateAnimationValue({{ loop.index0 }}, this.value)">
+                        {% for option in animations %}
+                            <option value="{{ option }}"{% if led.animation == option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+
                     <br>
                 {% endfor %}
             </fieldset>
@@ -387,6 +404,7 @@
             </ul>
         </div>
     </div>
+
     <div id="controls-container">
         <h2>Controls</h2>
         <button id="exhaustFlapButton" onclick="toggleExhaustFlap()">Toggle Exhaust Flap</button>
