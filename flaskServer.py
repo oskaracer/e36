@@ -19,7 +19,7 @@ class Server:
                                presets=Server.backend.presets.load_last_presets(),
                                curr_preset=Server.backend.get_curr_preset(),
                                get_image_url_for_preset=Server.get_image_url_for_preset,
-                               animations=Server.backend.animations.get_animations_names(),
+                               animations=Server.backend.get_animations_names(),
                                Server=Server)
 
     @staticmethod
