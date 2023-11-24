@@ -284,9 +284,26 @@ class LEDPresetStorage(object):
         self.parent.updateLedScreen.emit(f"update_ledscreen")
         return True
 
+class LEDAnimationStorage(object):
+    ANIM_PATH = "stored_data/animations.json"
+    def __init__(self, parent):
+        self.parent = parent
+        self.storage = {"static": None}
+        self.load_animations()
+
+    def load_animations(self):
+
+        if os.path.exists(self.ANIM_PATH):
+            with open(self.ANIM_PATH, 'r') as f:
+                self.storage = json.load(f)
+        return self.storage
+
+    def get_animations_names(self):
+        return self.storage.keys()
 
 class App(QObject):
     updateLedScreen = pyqtSignal(str)
+
 
     def __init__(self):
 
@@ -306,9 +323,10 @@ class App(QObject):
         self.exhaustFlap = ExhaustFlap(False)
 
         self.presets = LEDPresetStorage(self)
+        self.animations = LEDAnimationStorage(self)
         self.ledController = LEDController(self)
-
         self.curr_preset = None  # "default"
+
 
     def set_curr_preset(self, p):
 

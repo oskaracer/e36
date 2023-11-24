@@ -234,5 +234,43 @@
       "brightness": 149,
       "animation": "static"
     }
+  ],
+  "ss": [
+    {
+      "name": "left_outer",
+      "color": "#808080",
+      "brightness": 0,
+      "animation": "random"
+    },
+    {
+      "name": "left_inner",
+      "color": "#808080",
+      "brightness": 0,
+      "animation": "some_other"
+    },
+    {
+      "name": "right_inner",
+      "color": "#808080",
+      "brightness": 0,
+      "animation": null
+    },
+    {
+      "name": "right_outer",
+      "color": "#808080",
+      "brightness": 0,
+      "animation": null
+    },
+    {
+      "name": "lower_left",
+      "color": "#808080",
+      "brightness": 0,
+      "animation": null
+    },
+    {
+      "name": "lower_right",
+      "color": "#808080",
+      "brightness": 0,
+      "animation": null
+    }
   ]
 }
