@@ -391,7 +391,7 @@
         <h2>Available Presets</h2>
         <div class="presets-container">
             <ul id="allPresetsList" class="presets-list">
-                {% for preset in presets %}
+                {% for preset in Server.backend.presets.load_last_presets() %}
                     <li>
                         <button id={{ preset }} draggable="true" ondragstart="handleDragStart(event)" onclick="loadPreset('{{ preset }}')">
                             <div>
